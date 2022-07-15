@@ -9,52 +9,69 @@
 # и возвращает время общего присутствия ученика и учителя на уроке (в секундах).
 
 
-
-def ret_min_max(val1, val2):
+def ret_min_max(val1, val2) -> tuple:
     if len(val1) > len(val2):
         return val2, val1
     return val1, val2
 
 
 def appearance(intervals: dict) -> int:
-    limit = intervals["lesson"]
-    sub_limit, main_intervals = ret_min_max(intervals["pupil"], intervals["tutor"])
-
+    # 1 - enter
+    # -1 - exit
+    lesson = intervals["lesson"]
+    tutor = intervals["tutor"]
+    pupil = intervals["pupil"]
     total_time = 0
-    for i in range(0, len(sub_limit), 2):
-        if sub_limit[i] >= limit[1]:
-            break
-        if sub_limit[i+1] <= limit[0]:
-            continue
 
-        if sub_limit[i] <= limit[0] and sub_limit[i+1] <= limit[1]:
-            sub_limit[i] = limit[0]
-        if sub_limit[i+1] >= limit[1] and sub_limit[i] <= limit[1]:
-            sub_limit[i+1] = limit[1]
+    intervals = sorted([
+        (time, [1, -1][i%2]) for i, time in enumerate(lesson + tutor + pupil)
+    ])
+
+    flag = 0
+    start = 0
+    for time, event in intervals:
+        if flag == 2:
+            start = time
+        if flag == 3 and start != 0:
+            total_time += time - start
+
+        flag += event
+
+
+
+    # sub_limit, main_intervals = ret_min_max(intervals["pupil"], intervals["tutor"])
+
+    # for i in range(0, len(sub_limit), 2):
+    #     if sub_limit[i] >= limit[1]:
+    #         break
+    #     if sub_limit[i+1] <= limit[0]:
+    #         continue
+
+    #     if sub_limit[i] <= limit[0] and sub_limit[i+1] <= limit[1]:
+    #         sub_limit[i] = limit[0]
+    #     if sub_limit[i+1] >= limit[1] and sub_limit[i] <= limit[1]:
+    #         sub_limit[i+1] = limit[1]
 
         
 
-        for j in range(0, len(main_intervals), 2):
-            if main_intervals[j] >= sub_limit[i+1] and main_intervals[j] <= limit[1]:
-                break
-            if main_intervals[j+1] <= sub_limit[i]:
-                continue
+    #     for j in range(0, len(main_intervals), 2):
+    #         if main_intervals[j] >= sub_limit[i+1] and main_intervals[j] <= limit[1]:
+    #             break
+    #         if main_intervals[j+1] <= sub_limit[i]:
+    #             continue
 
 
-            elif sub_limit[i] <= main_intervals[j] <= main_intervals[j+1] <= sub_limit[i+1]:
-                total_time += main_intervals[j+1] - main_intervals[j]
+    #         elif sub_limit[i] <= main_intervals[j] <= main_intervals[j+1] <= sub_limit[i+1]:
+    #             total_time += main_intervals[j+1] - main_intervals[j]
 
-            elif sub_limit[i] <= main_intervals[j] <= sub_limit[i+1] <= main_intervals[j+1]:
-                total_time += sub_limit[i+1] - main_intervals[j]
+    #         elif sub_limit[i] <= main_intervals[j] <= sub_limit[i+1] <= main_intervals[j+1]:
+    #             total_time += sub_limit[i+1] - main_intervals[j]
 
-            elif main_intervals[j] <= sub_limit[i] <= main_intervals[j+1] <= sub_limit[i+1]:
-                total_time += main_intervals[j+1] - sub_limit[i]
+    #         elif main_intervals[j] <= sub_limit[i] <= main_intervals[j+1] <= sub_limit[i+1]:
+    #             total_time += main_intervals[j+1] - sub_limit[i]
 
-            elif main_intervals[j] <= sub_limit[i] <= sub_limit[i+1] <= main_intervals[j+1]:
-                total_time += sub_limit[i+1] - sub_limit[i]
-            
-
-
+    #         elif main_intervals[j] <= sub_limit[i] <= sub_limit[i+1] <= main_intervals[j+1]:
+    #             total_time += sub_limit[i+1] - sub_limit[i]
     return total_time
 
 
