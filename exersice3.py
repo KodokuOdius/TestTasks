@@ -9,6 +9,7 @@
 # и возвращает время общего присутствия ученика и учителя на уроке (в секундах).
 
 
+
 def ret_min_max(val1, val2):
     if len(val1) > len(val2):
         return val2, val1
@@ -18,38 +19,44 @@ def ret_min_max(val1, val2):
 def appearance(intervals: dict) -> int:
     limit = intervals["lesson"]
     sub_limit, main_intervals = ret_min_max(intervals["pupil"], intervals["tutor"])
-    print(len(sub_limit), len(main_intervals))
-
-
-
 
     total_time = 0
     for i in range(0, len(sub_limit), 2):
-        if sub_limit[i] <= limit[0]:
+        if sub_limit[i] >= limit[1]:
+            break
+        if sub_limit[i+1] <= limit[0]:
+            continue
+
+        if sub_limit[i] <= limit[0] and sub_limit[i+1] <= limit[1]:
             sub_limit[i] = limit[0]
-        if sub_limit[i+1] >= limit[1]:
+        if sub_limit[i+1] >= limit[1] and sub_limit[i] <= limit[1]:
             sub_limit[i+1] = limit[1]
 
-        for j in range(0, len(main_intervals), 2):
-            if main_intervals[j] <= limit[0]:
-                main_intervals[j] = limit[0]
-            if main_intervals[j+1] >= limit[1]:
-                main_intervals[j+1] = limit[1]
+        
 
+        for j in range(0, len(main_intervals), 2):
+            if main_intervals[j] >= sub_limit[i+1] and main_intervals[j] <= limit[1]:
+                break
             if main_intervals[j+1] <= sub_limit[i]:
                 continue
-            if main_intervals[j] >= sub_limit[i+1]:
-                break
 
-            if sub_limit[i] <= main_intervals[j] and main_intervals[j+1] <= sub_limit[i+1]:
+
+            elif sub_limit[i] <= main_intervals[j] <= main_intervals[j+1] <= sub_limit[i+1]:
                 total_time += main_intervals[j+1] - main_intervals[j]
-            elif main_intervals[j+1] >= sub_limit[i+1] and main_intervals[j] <= sub_limit[i+1]:
+
+            elif sub_limit[i] <= main_intervals[j] <= sub_limit[i+1] <= main_intervals[j+1]:
                 total_time += sub_limit[i+1] - main_intervals[j]
-            elif sub_limit[i] <= main_intervals[j+1] <= sub_limit[i+1]:
+
+            elif main_intervals[j] <= sub_limit[i] <= main_intervals[j+1] <= sub_limit[i+1]:
                 total_time += main_intervals[j+1] - sub_limit[i]
-    
+
+            elif main_intervals[j] <= sub_limit[i] <= sub_limit[i+1] <= main_intervals[j+1]:
+                total_time += sub_limit[i+1] - sub_limit[i]
+            
+
 
     return total_time
+
 
 
 tests = [
@@ -72,7 +79,11 @@ tests = [
 
 if __name__ == "__main__":
     for i, test in enumerate(tests):
-        test_answer = appearance(test["data"])
-        assert test_answer == test["answer"], f"Error on test case {i}, got {test_answer}, expected {test['answer']}"
+        try:
+            test_answer = appearance(test["data"])
+            assert test_answer == test["answer"], f"Error on test case {i}, got {test_answer}, expected {test['answer']}"
 
-    print("TASK DONE!")
+            print(f"test case {i} DONE!")
+        except Exception as ex:
+            print(ex)
+
