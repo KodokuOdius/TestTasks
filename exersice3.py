@@ -16,62 +16,25 @@ def ret_min_max(val1, val2) -> tuple:
 
 
 def appearance(intervals: dict) -> int:
-    # 1 - enter
-    # -1 - exit
-    lesson = intervals["lesson"]
-    tutor = intervals["tutor"]
-    pupil = intervals["pupil"]
-    total_time = 0
+    # 1 - start
+    # -1 - end
+    lesson = sorted(intervals["lesson"])
+    tutor = sorted(intervals["tutor"])
+    pupil = sorted(intervals["pupil"])
+    total_time = flag = start = 0
 
     intervals = sorted([
-        (time, [1, -1][i%2]) for i, time in enumerate(lesson + tutor + pupil)
-    ])
+        (time, [1, -1][i%2]) for i, time in enumerate(pupil + lesson + tutor)
+    ], key=lambda x: x[0])
 
-    flag = 0
-    start = 0
     for time, event in intervals:
         if flag == 2:
             start = time
-        if flag == 3 and start != 0:
+        elif flag == 3:
             total_time += time - start
 
         flag += event
 
-
-
-    # sub_limit, main_intervals = ret_min_max(intervals["pupil"], intervals["tutor"])
-
-    # for i in range(0, len(sub_limit), 2):
-    #     if sub_limit[i] >= limit[1]:
-    #         break
-    #     if sub_limit[i+1] <= limit[0]:
-    #         continue
-
-    #     if sub_limit[i] <= limit[0] and sub_limit[i+1] <= limit[1]:
-    #         sub_limit[i] = limit[0]
-    #     if sub_limit[i+1] >= limit[1] and sub_limit[i] <= limit[1]:
-    #         sub_limit[i+1] = limit[1]
-
-        
-
-    #     for j in range(0, len(main_intervals), 2):
-    #         if main_intervals[j] >= sub_limit[i+1] and main_intervals[j] <= limit[1]:
-    #             break
-    #         if main_intervals[j+1] <= sub_limit[i]:
-    #             continue
-
-
-    #         elif sub_limit[i] <= main_intervals[j] <= main_intervals[j+1] <= sub_limit[i+1]:
-    #             total_time += main_intervals[j+1] - main_intervals[j]
-
-    #         elif sub_limit[i] <= main_intervals[j] <= sub_limit[i+1] <= main_intervals[j+1]:
-    #             total_time += sub_limit[i+1] - main_intervals[j]
-
-    #         elif main_intervals[j] <= sub_limit[i] <= main_intervals[j+1] <= sub_limit[i+1]:
-    #             total_time += main_intervals[j+1] - sub_limit[i]
-
-    #         elif main_intervals[j] <= sub_limit[i] <= sub_limit[i+1] <= main_intervals[j+1]:
-    #             total_time += sub_limit[i+1] - sub_limit[i]
     return total_time
 
 
@@ -82,6 +45,11 @@ tests = [
              "tutor": [1594663290, 1594663430, 1594663443, 1594666473]},
      "answer": 3117
     },
+    # [1594702789, 1594704500, 1594702807, 1594704542, - ошибка в задании. 
+    # Если считать по условию то получается ученик зашёл на урок после того как вышел - [1594704500, 1594702807]
+    # И последующие пары в test case 1 "pupil" тоже ошибочны
+    # Новое время входа меньше предыдущего времени выходы
+    # Ощибочные пары - [1594702789, 1594704500, 1594702807, 1594704542, 1594704512, 1594704513, 1594704564, 1594705150, 1594704581, 1594704582]
     {"data": {"lesson": [1594702800, 1594706400],
              "pupil": [1594702789, 1594704500, 1594702807, 1594704542, 1594704512, 1594704513, 1594704564, 1594705150, 1594704581, 1594704582, 1594704734, 1594705009, 1594705095, 1594705096, 1594705106, 1594706480, 1594705158, 1594705773, 1594705849, 1594706480, 1594706500, 1594706875, 1594706502, 1594706503, 1594706524, 1594706524, 1594706579, 1594706641],
              "tutor": [1594700035, 1594700364, 1594702749, 1594705148, 1594705149, 1594706463]},
@@ -100,7 +68,7 @@ if __name__ == "__main__":
             test_answer = appearance(test["data"])
             assert test_answer == test["answer"], f"Error on test case {i}, got {test_answer}, expected {test['answer']}"
 
-            print(f"test case {i} DONE!")
         except Exception as ex:
             print(ex)
-
+        else:
+            print(f"test case {i} DONE!")
